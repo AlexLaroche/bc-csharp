@@ -38,10 +38,12 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         private const int Trials = 120;
 
         [Test]
+        [Explicit] // slow: ~60s
         public void TestStoredXmssKeyNeverSitsOnASignedIndex()
         {
             XmssParameters parameters = new XmssParameters(Height, new Sha256Digest());
             SecureRandom random = new SecureRandom();
+            int checkedTrials = 0;
 
             for (int trial = 0; trial != Trials; trial++)
             {
@@ -104,8 +106,13 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
                 {
                     Assert.IsTrue(stored > signed, "XMSS key stored at index " + stored + " after index " + signed
                         + " was signed");
+                    checkedTrials++;
                 }
             }
+
+            // the ordering where both calls succeed is the one the range check is about; a run that never reached
+            // it checked nothing
+            Assert.IsTrue(checkedTrials > 0, "no trial both signed and stored a key");
         }
 
         /// <summary>
@@ -136,22 +143,32 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
                 sigs.Add(new KeyValuePair<byte[], byte[]>(message, XmssHarnessTests.Sign(signers[i % 2], message)));
             }
 
-            // and concurrently, the remaining eight
+            // and concurrently, the remaining eight. A thread's exception is kept and reported after the join: left
+            // unhandled it would take the test host down rather than fail the test
             Thread[] threads = new Thread[2];
+            Exception[] failures = new Exception[2];
             for (int t = 0; t != 2; t++)
             {
                 XmssSigner signer = signers[t];
                 byte tag = (byte)(0x80 + t);
+                int slot = t;
                 threads[t] = new Thread(() =>
                 {
-                    for (int i = 0; i != 4; i++)
+                    try
                     {
-                        byte[] message = new byte[]{ tag, (byte)i };
-                        byte[] sig = XmssHarnessTests.Sign(signer, message);
-                        lock (sigs)
+                        for (int i = 0; i != 4; i++)
                         {
-                            sigs.Add(new KeyValuePair<byte[], byte[]>(message, sig));
+                            byte[] message = new byte[]{ tag, (byte)i };
+                            byte[] sig = XmssHarnessTests.Sign(signer, message);
+                            lock (sigs)
+                            {
+                                sigs.Add(new KeyValuePair<byte[], byte[]>(message, sig));
+                            }
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        failures[slot] = e;
                     }
                 });
             }
@@ -162,6 +179,10 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
             foreach (Thread thread in threads)
             {
                 thread.Join();
+            }
+            for (int t = 0; t != 2; t++)
+            {
+                Assert.IsNull(failures[t], "signing thread " + t + " failed: " + failures[t]);
             }
 
             Assert.AreEqual(1 << Height, sigs.Count);

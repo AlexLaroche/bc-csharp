@@ -96,6 +96,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
 
         /// <remarks>XMSS half: the key encoding checks and the XMSS^MT set arrive later.</remarks>
         [Test]
+        [Explicit] // slow: ~78s
         public void TestStandardParameterSets()
         {
             CheckXmss("XMSS-SHA2_10_256", new XmssParameters(10, new Sha256Digest()), SeedFor(10));

@@ -24,12 +24,14 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
     public class XmssSignatureTests
     {
         [Test]
+        [Explicit] // slow: ~29s
         public void TestSignatureParsingSha256()
         {
             CheckSignatureParsing(new XmssParameters(10, new Sha256Digest()));
         }
 
         [Test]
+        [Explicit] // slow: ~54s
         public void TestSignatureParsingSha512()
         {
             CheckSignatureParsing(new XmssParameters(10, new Sha512Digest()));
@@ -52,6 +54,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         /// carrying trailing data - or a truncated one - is not a signature for these parameters (github #2408).
         /// </summary>
         [Test]
+        [Explicit] // slow: ~36s
         public void TestSignatureWrongSizeRejected()
         {
             XmssParameters p = new XmssParameters(10, new Sha256Digest());

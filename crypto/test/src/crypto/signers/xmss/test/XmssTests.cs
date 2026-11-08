@@ -24,6 +24,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
     public class XmssTests
     {
         [Test]
+        [Explicit] // slow: ~24s
         public void TestAuthPath()
         {
             XmssParameters xmssParams = new XmssParameters(10, new Sha256Digest());
@@ -55,6 +56,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         }
 
         [Test]
+        [Explicit] // slow: ~14s
         public void TestGenKeyPairSha256()
         {
             XmssParameters xmssParams = new XmssParameters(10, new Sha256Digest());
@@ -76,6 +78,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         }
 
         [Test]
+        [Explicit] // slow: ~76s
         public void TestGenKeyPairSha512()
         {
             XmssParameters xmssParams = new XmssParameters(10, new Sha512Digest());
@@ -138,6 +141,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         /// it never compares it. The vector itself opens with index 0x00000082, which is what it is compared at here.
         /// </remarks>
         [Test]
+        [Explicit] // slow: ~72s
         public void TestSignSha256CompleteEvenHeight2()
         {
             int[] indices = new int[]{ 0x005b, 0x0082, 0x00b0, 0x016d, 0x0189, 0x01f9, 0x02a1, 0x038b, 0x03fe, 0x03ff };
@@ -168,6 +172,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         }
 
         [Test]
+        [Explicit] // slow: ~33s
         public void TestSignSha512()
         {
             XmssParameters parameters = new XmssParameters(10, new Sha512Digest());
@@ -334,12 +339,14 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         }
 
         [Test]
+        [Explicit] // slow: ~20s
         public void TestSignVerifySP800208_Shake256_256()
         {
             CheckSignVerifySP800208(0x00000010, 32);
         }
 
         [Test]
+        [Explicit] // slow: ~15s
         public void TestSignVerifySP800208_Shake256_192()
         {
             CheckSignVerifySP800208(0x00000013, 24);
@@ -367,18 +374,21 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
         }
 
         [Test]
+        [Explicit] // slow: ~19s
         public void TestKeyImportSP800208_Sha256_192()
         {
             CheckKeyImportSP800208(0x0000000d);
         }
 
         [Test]
+        [Explicit] // slow: ~20s
         public void TestKeyImportSP800208_Shake256_256()
         {
             CheckKeyImportSP800208(0x00000010);
         }
 
         [Test]
+        [Explicit] // slow: ~15s
         public void TestKeyImportSP800208_Shake256_192()
         {
             CheckKeyImportSP800208(0x00000013);

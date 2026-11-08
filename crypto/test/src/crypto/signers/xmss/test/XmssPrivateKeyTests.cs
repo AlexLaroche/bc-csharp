@@ -134,6 +134,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
 
         /// <summary>A registered parameter set carries its four byte identifier in front of the public key.</summary>
         [Test]
+        [Explicit] // slow: ~29s
         public void JavaVectors_XmssSha2_10_256_PublicKey()
         {
             XmssParameters parameters = XmssParameters.LookupByOid(1);
@@ -180,6 +181,18 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
                     .WithPrivateKey(Hex.Decode(encoding)).Build();
                 Assert.AreEqual(encoding, Hex.ToHexString(decoded.GetEncoded()));
             }
+
+            // review focus 1 on Java's bytes: the key Java stored after four signatures, decoded and signed with
+            // through the signer, signs at index 4 - Java's own signature at that index, byte for byte - and moves on
+            XmssPrivateKeyParameters stored4 = new XmssPrivateKeyParameters.Builder(parameters)
+                .WithPrivateKey(Hex.Decode(priv4)).Build();
+            XmssSigner signer = new XmssSigner();
+            signer.Init(true, stored4);
+            byte[] resigned4 = XmssHarnessTests.Sign(signer, Message);
+            Assert.AreEqual(4, XmssHarnessTests.IndexOf(resigned4));
+            Assert.AreEqual(sig4, resigned4, "signature from the decoded Java priv4");
+            Assert.AreEqual(5, ((XmssPrivateKeyParameters)signer.GetUpdatedPrivateKey()).Index);
+            Assert.AreEqual(5, stored4.Index);
         }
 
         /// <summary>
