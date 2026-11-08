@@ -10,6 +10,10 @@ on:
         description: 'Branch or commit to test (default: this branch)'
         required: false
         default: ''
+      filter:
+        description: 'dotnet test --filter expression (default: the XMSS tests)'
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -31,9 +35,9 @@ jobs:
             8.0.x
       - name: Build library (all TFMs)
         run: dotnet build crypto/src/BouncyCastle.Crypto.csproj -c Debug
-      - name: Test XMSS (${{ matrix.framework }})
+      - name: Test (${{ matrix.framework }})
         run: >
           dotnet test crypto/test/BouncyCastle.Crypto.Tests.csproj -c Debug
           --framework ${{ matrix.framework }}
-          --filter "FullyQualifiedName~Org.BouncyCastle.Crypto.Signers.Xmss"
+          --filter "${{ github.event.inputs.filter || 'FullyQualifiedName~Org.BouncyCastle.Crypto.Signers.Xmss' }}"
           --logger "console;verbosity=normal"
