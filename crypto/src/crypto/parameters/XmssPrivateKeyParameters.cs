@@ -147,16 +147,21 @@ namespace Org.BouncyCastle.Crypto.Parameters
             {
                 CheckDestroyed();
 
+                Bds replaced = m_bdsState;
+
                 /* prepare authentication path for next leaf */
-                if (m_bdsState.Index < m_bdsState.MaxIndex)
+                if (replaced.Index < replaced.MaxIndex)
                 {
-                    m_bdsState = XmssEngine.GetNextBdsState(m_bdsState, m_publicSeed, m_secretKeySeed);
+                    m_bdsState = XmssEngine.GetNextBdsState(replaced, m_publicSeed, m_secretKeySeed);
                 }
                 else
                 {
                     // no more nodes left.
-                    m_bdsState = new Bds(m_params, m_bdsState.MaxIndex, m_bdsState.MaxIndex + 1);
+                    m_bdsState = new Bds(m_params, replaced.MaxIndex, replaced.MaxIndex + 1);
                 }
+
+                // the state given up can still hold the WOTS+ secret key of a leaf this key has yet to sign with
+                XmssEngine.ClearSecrets(replaced);
 
                 return this;
             }
@@ -202,17 +207,23 @@ namespace Org.BouncyCastle.Crypto.Parameters
                     .WithOwnedBdsState(m_bdsState.WithMaxIndex(m_bdsState.Index + usageCount - 1,
                         m_params.TreeDigestOid, m_params.TreeDigestSize)).Build();
 
+                // each state given up can still hold the WOTS+ secret key of a leaf yet to sign with; the shard's
+                // state is a copy with a WOTS+ instance of its own, so wiping these leaves it whole
                 if (usageCount == usagesRemaining)
                 {
                     // we're finished.
-                    m_bdsState = new Bds(m_params, m_bdsState.MaxIndex, Index + usageCount);
+                    Bds replaced = m_bdsState;
+                    m_bdsState = new Bds(m_params, replaced.MaxIndex, replaced.Index + usageCount);
+                    XmssEngine.ClearSecrets(replaced);
                 }
                 else
                 {
                     // update the tree to the new index.
                     for (int i = 0; i != usageCount; i++)
                     {
-                        m_bdsState = XmssEngine.GetNextBdsState(m_bdsState, m_publicSeed, m_secretKeySeed);
+                        Bds replaced = m_bdsState;
+                        m_bdsState = XmssEngine.GetNextBdsState(replaced, m_publicSeed, m_secretKeySeed);
+                        XmssEngine.ClearSecrets(replaced);
                     }
                 }
 

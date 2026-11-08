@@ -1,6 +1,4 @@
-﻿using System;
-
-using Org.BouncyCastle.Crypto.Parameters;
+﻿using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers.Xmss;
 using Org.BouncyCastle.Security;
 
@@ -17,7 +15,7 @@ namespace Org.BouncyCastle.Crypto.Generators
         /// Initialise with an <see cref="XmssKeyGenerationParameters"/> instance; the <see cref="SecureRandom"/> and
         /// parameter set are taken from it.
         /// </summary>
-        /// <exception cref="InvalidCastException">If <paramref name="parameters"/> is not an
+        /// <exception cref="System.InvalidCastException">If <paramref name="parameters"/> is not an
         /// <see cref="XmssKeyGenerationParameters"/>.</exception>
         public void Init(KeyGenerationParameters parameters)
         {

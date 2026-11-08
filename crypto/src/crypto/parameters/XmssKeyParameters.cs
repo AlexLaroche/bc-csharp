@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Org.BouncyCastle.Crypto.Parameters
+﻿namespace Org.BouncyCastle.Crypto.Parameters
 {
     /// <summary>Common base for XMSS public and private key parameters (RFC 8391).</summary>
     public class XmssKeyParameters
