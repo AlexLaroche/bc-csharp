@@ -1,0 +1,38 @@
+# CI-only branch for the XMSS port review; not part of any upstream PR.
+name: XMSS tests (all TFMs)
+
+on:
+  push:
+    branches: [ 'ci/xmss' ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or commit to test (default: this branch)'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [ net461, net472, netcoreapp3.1, net6.0 ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            3.1.x
+            6.0.x
+            8.0.x
+      - name: Build library (all TFMs)
+        run: dotnet build crypto/src/BouncyCastle.Crypto.csproj -c Debug
+      - name: Test XMSS (${{ matrix.framework }})
+        run: >
+          dotnet test crypto/test/BouncyCastle.Crypto.Tests.csproj -c Debug
+          --framework ${{ matrix.framework }}
+          --filter "FullyQualifiedName~Org.BouncyCastle.Crypto.Signers.Xmss"
+          --logger "console;verbosity=normal"
