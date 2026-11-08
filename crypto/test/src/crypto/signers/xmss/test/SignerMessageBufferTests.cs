@@ -147,7 +147,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
             signer.BlockUpdate(Message, 0, Message.Length);
             Assert.IsTrue(Verifies(new XmssSigner(), kp, Message, signer.GenerateSignature()));
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             signer.Init(true, kp.Private);
             signer.BlockUpdate(Message.AsSpan(0, 2));
             signer.BlockUpdate(Message.AsSpan(2));

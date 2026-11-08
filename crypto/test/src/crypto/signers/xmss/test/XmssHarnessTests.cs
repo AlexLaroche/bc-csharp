@@ -141,7 +141,7 @@ namespace Org.BouncyCastle.Crypto.Signers.Xmss.Tests
 
             public override void NextBytes(byte[] buf, int off, int len) => Array.Clear(buf, off, len);
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             public override void NextBytes(Span<byte> buffer) => buffer.Clear();
 #endif
         }
